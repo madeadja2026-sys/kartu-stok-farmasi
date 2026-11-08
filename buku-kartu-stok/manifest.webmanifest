@@ -1,0 +1,17 @@
+{
+  "name": "Buku Catatan Kartu Stok Obat - Puskesmas Ngalupolo",
+  "short_name": "Kartu Stok",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f8f6",
+  "theme_color": "#176b55",
+  "description": "Aplikasi pencatatan kartu stok obat offline untuk Gudang Farmasi, Apotek, Poli, Pustu dan Poskesdes.",
+  "icons": [
+    {
+      "src": "../icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
