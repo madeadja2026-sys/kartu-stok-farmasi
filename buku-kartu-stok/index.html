@@ -75,7 +75,7 @@ label{display:block;font-size:12px;font-weight:700;color:#536b63;margin:9px 0 5p
 </main>
 <script>
 (function(){
-const LOC=["Gudang Farmasi","Apotek","Poli dan Ruangan","Pustu 1","Pustu 2","Pustu 3","Poskesdes Reka","Poskesdes Wolokota","Poskesdes Kekasewa"];
+const LOC=["Gudang Farmasi","Apotek","Poli dan Ruangan","Poskesdes Reka","Poskesdes Wolokota","Poskesdes Kekasewa"];
 const KEY="ngalupolo_kartu_stok_v1";const $=id=>document.getElementById(id);
 let db;try{db=JSON.parse(localStorage.getItem(KEY))||{items:[],tx:[]}}catch(e){db={items:[],tx:[]}}
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
