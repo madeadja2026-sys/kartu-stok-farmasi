@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#176b55"><link rel="manifest" href="./manifest.webmanifest">
+<title>Buku Kartu Stok Obat | Puskesmas Ngalupolo</title>
+<style>
+:root{--g:#176b55;--p:#e9f4ef;--bg:#f4f8f6;--ink:#19362e;--muted:#6b8078;--line:#dce8e2;--red:#b42318;--amber:#946000}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#145b49,#21856b);color:white;padding:18px 16px 20px;border-radius:0 0 20px 20px}
+.brand{font-size:11px;letter-spacing:.08em;opacity:.9;font-weight:700}.title{font-size:21px;font-weight:800;margin:5px 0}.sub{font-size:12px;opacity:.88}
+main{max-width:950px;margin:auto;padding:13px 12px 90px}.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:13px 0}.nav button{background:white;border:1px solid var(--line);border-radius:11px;padding:8px 2px;color:var(--muted);font-size:10px;font-weight:700}.nav button b{display:block;font-size:18px}.nav button.active{background:var(--g);color:white}
+.panel{display:none}.panel.active{display:block}.heading{font-size:17px;font-weight:800;margin:10px 0}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat,.card{background:white;border:1px solid var(--line);border-radius:14px;padding:13px;margin:9px 0}.stat small{display:block;color:var(--muted)}.stat strong{display:block;font-size:23px;margin-top:3px}
+label{display:block;font-size:12px;font-weight:700;color:#536b63;margin:9px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid #cbdcd3;border-radius:10px;background:white;color:var(--ink);font:inherit}textarea{min-height:65px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:0;background:var(--g);color:white;border-radius:10px;padding:10px 13px;font-weight:700}.btn.light{background:var(--p);color:var(--g)}.btn.danger{background:#fff0ef;color:var(--red)}.btn.small{font-size:11px;padding:6px 9px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.muted{font-size:12px;color:var(--muted)}.pill{display:inline-block;border-radius:20px;padding:3px 8px;font-size:10px;font-weight:800;background:var(--p);color:var(--g)}.pill.warn{background:#fff3d9;color:var(--amber)}.pill.bad{background:#ffebe9;color:var(--red)}.tablewrap{overflow:auto;background:white;border:1px solid var(--line);border-radius:11px}table{border-collapse:collapse;width:100%;min-width:570px;font-size:12px}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}th{background:#f0f6f3;color:#536b63;font-size:11px}.empty{text-align:center;padding:20px;color:var(--muted)}.notice{padding:11px;background:#fff8e8;border:1px solid #f2dfb4;color:#725019;border-radius:11px;font-size:12px;margin:10px 0}
+@media(min-width:650px){.stats{grid-template-columns:repeat(4,1fr)}.nav button{font-size:12px}.title{font-size:25px}}
+@media print{header,.nav,.no-print,button{display:none!important}body{background:white}.panel{display:block!important}.card{break-inside:avoid}}
+</style></head><body>
+<header><div class="brand">PUSKESMAS NGALUPOLO · UNIT FARMASI</div><div class="title">Buku Catatan Kartu Stok Obat</div><div class="sub">Aplikasi digital sederhana · Bisa digunakan offline · Data tersimpan di HP</div></header>
+<main>
+<nav class="nav no-print">
+<button class="active" data-tab="home"><b>▦</b>Ringkasan</button>
+<button data-tab="master"><b>＋</b>Daftar Obat</button>
+<button data-tab="input"><b>⇄</b>Catat Mutasi</button>
+<button data-tab="kartu"><b>▤</b>Kartu Stok</button>
+<button data-tab="backup"><b>⚙</b>Data</button>
+</nav>
+<section id="home" class="panel active">
+<div class="heading">Ringkasan persediaan</div>
+<div class="stats"><div class="stat"><small>Jenis obat</small><strong id="statItems">0</strong></div><div class="stat"><small>Total saldo semua lokasi</small><strong id="statStock">0</strong></div><div class="stat"><small>Stok menipis / habis</small><strong id="statLow">0</strong></div><div class="stat"><small>Transaksi tercatat</small><strong id="statTx">0</strong></div></div>
+<div class="card"><b>Ringkasan per lokasi</b><div id="locationSummary"></div></div>
+<div class="card"><b>Transaksi terbaru</b><div id="recent"></div></div>
+<div class="notice">Rumus saldo lokasi: stok awal + penerimaan + transfer masuk − pemakaian − kedaluwarsa/rusak. Transfer keluar/penyaluran dicatat sebagai informasi dan tidak mengurangi saldo otomatis.</div>
+</section>
+<section id="master" class="panel">
+<div class="heading">Daftar / master obat</div>
+<div class="card">
+<input type="hidden" id="itemId">
+<label>Nama obat / BMHP *</label><input id="itemName" placeholder="Contoh: Paracetamol 500 mg">
+<div class="grid2"><div><label>Satuan</label><select id="unit"><option>Tablet</option><option>Kapsul</option><option>Botol</option><option>Vial</option><option>Ampul</option><option>Tube</option><option>Box</option><option>Unit</option><option>Lainnya</option></select></div><div><label>Stok minimum</label><input id="minimum" type="number" min="0" value="10"></div></div>
+<label>Catatan (opsional)</label><input id="itemNote" placeholder="Kekuatan / bentuk sediaan / keterangan">
+<div class="actions"><button class="btn" id="saveItem">Simpan obat</button><button class="btn light" id="cancelItem">Batal edit</button></div>
+</div>
+<label>Cari obat</label><input id="searchItem" placeholder="Ketik nama obat...">
+<div id="itemList"></div>
+</section>
+<section id="input" class="panel">
+<div class="heading">Catat mutasi stok</div>
+<div class="card">
+<input type="hidden" id="txId">
+<label>Tanggal</label><input id="txDate" type="date">
+<label>Nama obat</label><select id="txItem"></select>
+<label>Lokasi pencatatan</label><select id="txLocation"></select>
+<label>Jenis transaksi</label><select id="txType"><option value="Masuk">Penerimaan / masuk</option><option value="Pakai">Pemakaian</option><option value="Rusak">Kedaluwarsa / rusak</option><option value="Transfer Masuk">Transfer masuk dari unit lain</option><option value="Transfer Keluar">Transfer keluar / penyaluran (informasi)</option></select>
+<div id="destinationWrap"><label>Tujuan penyaluran (jika transfer keluar)</label><select id="txDestination"></select></div>
+<label>Jumlah</label><input id="txQty" type="number" min="1" placeholder="Masukkan jumlah">
+<label>No. batch / tanggal kedaluwarsa (opsional)</label><input id="txBatch" placeholder="Nomor batch atau ED">
+<label>Keterangan</label><textarea id="txNote" placeholder="Catatan tambahan"></textarea>
+<div class="actions"><button class="btn" id="saveTx">Simpan transaksi</button><button class="btn light" id="cancelTx">Batal edit</button></div>
+</div>
+<label>Riwayat transaksi</label><div class="grid2"><select id="filterLocation"></select><input id="searchTx" placeholder="Cari obat / catatan"></div>
+<div id="txList"></div>
+</section>
+<section id="kartu" class="panel">
+<div class="heading">Kartu stok per obat dan lokasi</div>
+<div class="card"><label>Pilih obat</label><select id="cardItem"></select><label>Pilih lokasi</label><select id="cardLocation"></select><div id="cardInfo" class="muted" style="margin-top:10px">Pilih obat dan lokasi.</div><div class="actions no-print"><button class="btn light" id="printCard">Cetak / Simpan PDF</button></div></div>
+<div id="cardTable"></div>
+</section>
+<section id="backup" class="panel">
+<div class="heading">Pengaturan dan pencadangan</div>
+<div class="card"><b>Lokasi pelayanan</b><div id="allLocations"></div></div>
+<div class="card"><b>Backup & pemulihan</b><p class="muted">Unduh file cadangan JSON secara berkala. Simpan file di tempat aman.</p><div class="actions"><button class="btn" id="downloadBackup">Unduh cadangan JSON</button><button class="btn light" id="downloadCsv">Ekspor transaksi CSV</button></div><label>Pulihkan dari file JSON</label><input type="file" id="restoreFile" accept=".json,application/json"></div>
+<div class="notice">Data tersimpan di browser HP ini. Data tidak otomatis tersinkron ke HP lain. Jika menghapus data browser atau mengganti perangkat, pulihkan dari file cadangan.</div>
+<button class="btn danger no-print" id="clearAll">Hapus seluruh data aplikasi</button>
+</section>
+<footer class="muted" style="text-align:center;padding:20px">Buku Kartu Stok Obat · Puskesmas Ngalupolo</footer>
+</main>
+<script>
+(function(){
+const LOC=["Gudang Farmasi","Apotek","Poli dan Ruangan","Pustu 1","Pustu 2","Pustu 3","Poskesdes Reka","Poskesdes Wolokota","Poskesdes Kekasewa"];
+const KEY="ngalupolo_kartu_stok_v1";const $=id=>document.getElementById(id);
+let db;try{db=JSON.parse(localStorage.getItem(KEY))||{items:[],tx:[]}}catch(e){db={items:[],tx:[]}}
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>Number(n||0).toLocaleString("id-ID");const today=()=>new Date().toISOString().slice(0,10);
+const uid=()=>crypto.randomUUID?crypto.randomUUID():"id-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function balance(itemId,loc){let s=0;db.tx.filter(t=>t.itemId===itemId&&t.location===loc).forEach(t=>{let n=Number(t.qty)||0;if(["Masuk","Transfer Masuk"].includes(t.type))s+=n;else if(["Pakai","Rusak"].includes(t.type))s-=n});return s}
+function status(s,min){if(s<=0)return ["HABIS","bad"];if(s<=min/2)return ["KRITIS","bad"];if(s<=min)return ["MENIPIS","warn"];if(min>0&&s>min*10)return ["BERLEBIH","warn"];return ["AMAN",""]}
+function fill(){let itemOpts=db.items.map(i=>'<option value="'+i.id+'">'+esc(i.name)+'</option>').join("");["txItem","cardItem"].forEach(id=>$(id).innerHTML='<option value="">Pilih obat</option>'+itemOpts);["txLocation","txDestination","cardLocation"].forEach(id=>$(id).innerHTML=LOC.map(l=>'<option>'+esc(l)+'</option>').join(""));$("filterLocation").innerHTML='<option value="">Semua lokasi</option>'+LOC.map(l=>'<option>'+esc(l)+'</option>').join("")}
+function render(){fill();$("statItems").textContent=db.items.length;$("statTx").textContent=db.tx.length;let total=0,low=0;db.items.forEach(i=>LOC.forEach(l=>{let b=balance(i.id,l);total+=Math.max(0,b);if(b<=Number(i.minimum||0))low++}));$("statStock").textContent=fmt(total);$("statLow").textContent=low;
+$("locationSummary").innerHTML=LOC.map(l=>{let v=db.items.reduce((a,i)=>a+Math.max(0,balance(i.id,l)),0);return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><span>'+esc(l)+'</span><b>'+fmt(v)+'</b></div>'}).join("");
+$("recent").innerHTML=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.created-a.created).slice(0,6).map(t=>'<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>'+esc((db.items.find(i=>i.id===t.itemId)||{}).name||"Obat dihapus")+'</b><div class="muted">'+esc(t.date)+' · '+esc(t.type)+' · '+esc(t.location)+' · '+fmt(t.qty)+'</div></div>').join("")||'<div class="empty">Belum ada transaksi.</div>';
+renderItems();renderTx();renderCard();$("allLocations").innerHTML=LOC.map(l=>'<div style="padding:5px 0">'+esc(l)+'</div>').join("")}
+function renderItems(){let q=$("searchItem").value.toLowerCase();let arr=db.items.filter(i=>i.name.toLowerCase().includes(q));$("itemList").innerHTML=arr.map(i=>{let total=LOC.reduce((a,l)=>a+balance(i.id,l),0),st=status(total,Number(i.minimum||0));return '<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+esc(i.name)+'</b><span class="pill '+st[1]+'">'+st[0]+'</span></div><div class="muted">'+esc(i.unit)+' · Minimum '+fmt(i.minimum)+' · '+esc(i.note||"")+'</div><div style="font-size:22px;font-weight:800;margin:5px 0">'+fmt(total)+' <small class="muted">'+esc(i.unit)+'</small></div><div class="muted">'+LOC.map(l=>esc(l)+': '+fmt(balance(i.id,l))).join(' · ')+'</div><div class="actions"><button class="btn light small" onclick="editItem(\''+i.id+'\')">Edit</button><button class="btn danger small" onclick="deleteItem(\''+i.id+'\')">Hapus</button></div></div>'}).join("")||'<div class="empty">Belum ada master obat.</div>'}
+window.editItem=id=>{let i=db.items.find(x=>x.id===id);if(!i)return;$("itemId").value=id;$("itemName").value=i.name;$("unit").value=i.unit;$("minimum").value=i.minimum;$("itemNote").value=i.note||"";window.scrollTo({top:0,behavior:"smooth"})};
+window.deleteItem=id=>{if(!confirm("Hapus obat dan seluruh riwayat transaksinya?"))return;db.items=db.items.filter(i=>i.id!==id);db.tx=db.tx.filter(t=>t.itemId!==id);save()};
+$("saveItem").onclick=()=>{let name=$("itemName").value.trim();if(!name)return alert("Nama obat wajib diisi.");let id=$("itemId").value||uid(),old=db.items.find(i=>i.id===id),obj={id,name,unit:$("unit").value,minimum:Number($("minimum").value)||0,note:$("itemNote").value.trim()};if(old)Object.assign(old,obj);else db.items.push(obj);$("itemId").value="";$("itemName").value="";$("itemNote").value="";save()};
+$("cancelItem").onclick=()=>{$("itemId").value="";$("itemName").value="";$("itemNote").value=""};$("searchItem").oninput=renderItems;
+function renderTx(){let q=$("searchTx").value.toLowerCase(),loc=$("filterLocation").value;let arr=db.tx.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.created-a.created).filter(t=>(!loc||t.location===loc)&&(((db.items.find(i=>i.id===t.itemId)||{}).name||"").toLowerCase().includes(q)||(t.note||"").toLowerCase().includes(q)));$("txList").innerHTML=arr.map(t=>'<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+esc((db.items.find(i=>i.id===t.itemId)||{}).name||"Obat")+'</b><span class="pill">'+esc(t.type)+'</span></div><div class="muted">'+esc(t.date)+' · '+esc(t.location)+' · '+esc(t.batch||"")+'</div><b>'+fmt(t.qty)+'</b> <span class="muted">'+esc(t.note||"")+'</span>'+(t.destination?'<div class="muted">Tujuan: '+esc(t.destination)+'</div>':"")+'<div class="actions"><button class="btn light small" onclick="editTx(\''+t.id+'\')">Edit</button><button class="btn danger small" onclick="deleteTx(\''+t.id+'\')">Hapus</button></div></div>').join("")||'<div class="empty">Belum ada transaksi.</div>'}
+window.editTx=id=>{let t=db.tx.find(x=>x.id===id);if(!t)return;$("txId").value=id;$("txDate").value=t.date;$("txItem").value=t.itemId;$("txLocation").value=t.location;$("txType").value=t.type;$("txQty").value=t.qty;$("txBatch").value=t.batch||"";$("txNote").value=t.note||"";$("txDestination").value=t.destination||LOC[0];$("destinationWrap").style.display=t.type==="Transfer Keluar"?"block":"none";window.scrollTo({top:0,behavior:"smooth"})};
+window.deleteTx=id=>{if(!confirm("Hapus transaksi ini? Saldo akan dihitung ulang."))return;db.tx=db.tx.filter(t=>t.id!==id);save()};
+$("txType").onchange=()=>{$("destinationWrap").style.display=$("txType").value==="Transfer Keluar"?"block":"none"};
+$("saveTx").onclick=()=>{if(!db.items.length)return alert("Tambahkan master obat dahulu.");let qty=Number($("txQty").value);if(!qty||qty<1)return alert("Jumlah harus lebih dari nol.");let id=$("txId").value||uid(),obj={id,date:$("txDate").value||today(),itemId:$("txItem").value,location:$("txLocation").value,type:$("txType").value,qty,batch:$("txBatch").value.trim(),note:$("txNote").value.trim(),destination:$("txType").value==="Transfer Keluar"?$("txDestination").value:"",created:Date.now()};if(!obj.itemId)return alert("Pilih obat.");let old=db.tx.find(t=>t.id===id);if(old)Object.assign(old,obj);else db.tx.push(obj);$("txId").value="";$("txQty").value="";$("txBatch").value="";$("txNote").value="";save()};
+$("cancelTx").onclick=()=>{$("txId").value="";$("txQty").value="";$("txBatch").value="";$("txNote").value=""};$("txDate").value=today();$("searchTx").oninput=renderTx;$("filterLocation").onchange=renderTx;
+function renderCard(){let id=$("cardItem").value,loc=$("cardLocation").value,item=db.items.find(i=>i.id===id);if(!item){$("cardInfo").textContent="Pilih obat dan lokasi."; $("cardTable").innerHTML="";return}let rows=db.tx.filter(t=>t.itemId===id&&t.location===loc).sort((a,b)=>a.date.localeCompare(b.date)||a.created-b.created),bal=0;let html=rows.map(t=>{let masuk=["Masuk","Transfer Masuk"].includes(t.type)?t.qty:0,keluar=["Pakai","Rusak"].includes(t.type)?t.qty:0;bal+=masuk-keluar;return '<tr><td>'+esc(t.date)+'</td><td>'+esc(t.type)+'</td><td>'+esc(t.note||t.batch||"-")+'</td><td>'+fmt(masuk)+'</td><td>'+fmt(keluar)+'</td><td><b>'+fmt(bal)+'</b></td></tr>'}).join("");$("cardInfo").innerHTML="<b>"+esc(item.name)+"</b> · "+esc(loc)+" · Saldo saat ini: <b>"+fmt(balance(id,loc))+" "+esc(item.unit)+"</b>";$("cardTable").innerHTML='<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Uraian</th><th>Keterangan</th><th>Masuk</th><th>Keluar</th><th>Saldo</th></tr></thead><tbody>'+(html||'<tr><td colspan="6" class="empty">Belum ada transaksi pada lokasi ini.</td></tr>')+'</tbody></table></div>'}
+$("cardItem").onchange=renderCard;$("cardLocation").onchange=renderCard;$("printCard").onclick=()=>window.print();
+function download(name,content,type){let a=document.createElement("a"),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+$("downloadBackup").onclick=()=>download("Backup_Kartu_Stok_"+today()+".json",JSON.stringify(db,null,2),"application/json");
+$("downloadCsv").onclick=()=>{let rows=[["Tanggal","Obat","Lokasi","Jenis","Jumlah","Batch/ED","Tujuan","Keterangan"],...db.tx.map(t=>[t.date,(db.items.find(i=>i.id===t.itemId)||{}).name||"",t.location,t.type,t.qty,t.batch||"",t.destination||"",t.note||""])];download("Transaksi_Kartu_Stok_"+today()+".csv",rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\n"),"text/csv;charset=utf-8")};
+$("restoreFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.items)||!Array.isArray(d.tx))throw 0;if(confirm("Pulihkan data? Data saat ini akan diganti.")){db=d;save();alert("Pemulihan data berhasil.")}}catch(_){alert("File cadangan tidak valid.")}e.target.value=""};
+$("clearAll").onclick=()=>{if(confirm("Yakin menghapus seluruh data dari HP ini? Tindakan tidak dapat dibatalkan.")){db={items:[],tx:[]};save()}};
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".panel").forEach(x=>x.classList.toggle("active",x.id===b.dataset.tab));if(b.dataset.tab==="kartu")renderCard()});
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+render();
+})();
+</script></body></html>
